@@ -83,9 +83,28 @@ jobs:
       - name: Verify and bundle official video engine
         working-directory: ${{ steps.project.outputs.root }}
         run: bash scripts/prepare-video-engine.sh
+      - name: Compile all Android Java sources
+        working-directory: ${{ steps.project.outputs.root }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/sr-build-logs"
+          gradle --no-daemon --console=plain :app:compileDebugJavaWithJavac 2>&1 | tee "$RUNNER_TEMP/sr-build-logs/compile.log"
       - name: Build debug APK
         working-directory: ${{ steps.project.outputs.root }}
-        run: gradle --no-daemon --stacktrace :app:assembleDebug
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/sr-build-logs"
+          gradle --no-daemon --console=plain --stacktrace :app:assembleDebug 2>&1 | tee "$RUNNER_TEMP/sr-build-logs/build.log"
+      - name: Upload compiler diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SR-Turbo-Browser-Build-Logs
+          path: ${{ runner.temp }}/sr-build-logs/
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Prepare APK
         shell: bash
         env:
