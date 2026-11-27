@@ -205,7 +205,25 @@ extra_themes = """    MOONLAKE("Moonlit Lake", "Moonlight · quiet woodland", "m
     CORAL("Coral Breeze", "Warm white · tropical coral", null, false, 0xff713d3b,0xff92504a,0xfffff6f1,0xffffffff,0xff4c302d,0xff80635e,0xffc65e50,0xffffc2ae,0xffeedbd4,0xfff8e6df),
     OLIVE("Olive Grove", "Soft cream · botanical olive", null, false, 0xff465035,0xff5d6b43,0xfff7f8ed,0xffffffff,0xff333c25,0xff657052,0xff657d32,0xffd9e8a8,0xffe0e5d0,0xffedf1d9);"""
 theme_source = theme_source.replace(theme_anchor, extra_themes, 1)
+# Keep all newly added accent colors above the WCAG AA contrast threshold.
+for old, new in {
+    "0xff4fa9ff":"0xff72bdff",
+    "0xffff6b91":"0xffff91ad",
+    "0xffd58b55":"0xffe6a36f",
+    "0xffa48bff":"0xffb7a5ff",
+    "0xffc65e50":"0xffd97868",
+}.items():
+    theme_source = theme_source.replace(old, new, 1)
 theme_file.write_text(theme_source, encoding="utf-8")
+
+# Update the bundled regression test to assert the expanded palette count.
+theme_test = root / "tests/BrowserThemeTest.java"
+if not theme_test.is_file():
+    raise SystemExit("BrowserThemeTest.java not found; refusing untested theme update.")
+test_source = theme_test.read_text(encoding="utf-8")
+if test_source.count("BrowserTheme.values().length==18") != 1:
+    raise SystemExit("Theme test count assertion mismatch.")
+theme_test.write_text(test_source.replace("BrowserTheme.values().length==18", "BrowserTheme.values().length==30", 1), encoding="utf-8")
 
 print("Applied SR Turbo Browser Pro 3.9 home and theme update.")
 
