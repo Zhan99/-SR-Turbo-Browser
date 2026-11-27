@@ -175,6 +175,8 @@ filters = r'''    void renderFilters(){
     }
 '''
 ds = ds.replace(filter_anchor, filters+filter_anchor, 1)
+ds = ds.replace('selected?Color.WHITE:fg()', 'selected?android.graphics.Color.WHITE:fg()')
+ds = ds.replace('queued=0;for(JSONObject j:items){', 'queued=0;for(JSONObject j:all){')
 downloads.write_text(ds, encoding="utf-8")
 
 build = gradle.read_text(encoding="utf-8")
