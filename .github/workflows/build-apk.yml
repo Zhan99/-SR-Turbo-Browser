@@ -2,13 +2,13 @@ name: Build SR Turbo Browser APK
 on:
   workflow_dispatch:
   push:
-    branches: ['main', 'master']
+    branches: ['main', 'master', 'feature/audio-download-universal-files']
 permissions:
   contents: read
 jobs:
   build:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 32
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -34,6 +34,8 @@ jobs:
           test -f "$root/app/build.gradle"
           test -f "$root/app/src/main/AndroidManifest.xml"
           echo "root=$root" >> "$GITHUB_OUTPUT"
+      - name: Apply SR Turbo audio and universal download updates
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/apply-download-updates.sh" "${{ steps.project.outputs.root }}"
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
