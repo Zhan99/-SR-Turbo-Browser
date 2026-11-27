@@ -36,6 +36,8 @@ jobs:
           test -f "$root/app/build.gradle"
           test -f "$root/app/src/main/AndroidManifest.xml"
           echo "root=$root" >> "$GITHUB_OUTPUT"
+      - name: Apply Pro upgrade source patch
+        run: python3 "$GITHUB_WORKSPACE/pro-upgrade/apply-pro-upgrade.py" "${{ steps.project.outputs.root }}"
       - name: Upload extracted Android source for Pro upgrade review
         uses: actions/upload-artifact@v4
         with:
