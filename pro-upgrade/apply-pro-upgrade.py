@@ -77,4 +77,106 @@ if "versionCode 32" not in build or "versionName '3.6'" not in build:
     raise SystemExit("Unexpected app version; refusing to overwrite version metadata.")
 build = build.replace("versionCode 32", "versionCode 33", 1).replace("versionName '3.6'", "versionName '3.7'", 1)
 gradle.write_text(build, encoding="utf-8")
-print("Applied SR Turbo Pro dashboard and version 3.7 (versionCode 33).")
+
+# Pro 3.8 visual refresh: home screen, Control Center and Downloads Center.
+source = activity.read_text(encoding="utf-8")
+home_anchor = '        }else renderQuickAccess(panel);\n'
+if source.count(home_anchor) != 1:
+    raise SystemExit("Home screen insertion point mismatch.")
+source = source.replace(home_anchor, '        }else {renderProHome(panel);renderQuickAccess(panel);}\n', 1)
+home_method_anchor = '    void defaultQuickLinks(){'
+if source.count(home_method_anchor) != 1:
+    raise SystemExit("Quick-access method insertion point mismatch.")
+home_method = r'''    void renderProHome(LinearLayout panel){
+        LinearLayout hero=Ui.column(this);Ui.pad(hero,this,17);
+        hero.setBackground(Ui.gradient(this,palette().toolbar,palette().nav,22));
+        LinearLayout brand=Ui.row(this);
+        TextView brandName=Ui.text(this,"⚡  SR TURBO",12,palette().highlight,true);
+        brandName.setLetterSpacing(0.12f);brand.addView(brandName,new LinearLayout.LayoutParams(0,-2,1));
+        TextView edition=Ui.text(this,"PRO  •  3.8",10,Color.WHITE,true);
+        edition.setBackground(Ui.bg(0x3346d4c2,10,this));Ui.pad(edition,this,7);brand.addView(edition);hero.addView(brand);
+        TextView headline=Ui.text(this,"Browse beyond limits.",25,Color.WHITE,true);
+        headline.setPadding(0,Ui.dp(this,14),0,Ui.dp(this,3));hero.addView(headline);
+        hero.addView(Ui.text(this,"Fast browsing. Smarter downloads. Your controls, all in one place.",12,0xffd4e2ee,false));
+        LinearLayout searchRow=Ui.row(this);searchRow.setGravity(Gravity.CENTER_VERTICAL);
+        EditText query=new EditText(this);query.setSingleLine(true);query.setTextSize(14);query.setTextColor(Color.WHITE);query.setHintTextColor(0xffb9c9d8);
+        query.setHint("Search the web or enter a website");query.setSelectAllOnFocus(true);
+        query.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_VARIATION_URI);
+        query.setImeOptions(EditorInfo.IME_ACTION_GO);query.setPadding(Ui.dp(this,12),0,Ui.dp(this,8),0);
+        query.setBackground(Ui.bg(0x33202f43,14,this));
+        query.setOnEditorActionListener((v,a,e)->{if(a==EditorInfo.IME_ACTION_GO||(e!=null&&e.getKeyCode()==KeyEvent.KEYCODE_ENTER&&e.getAction()==KeyEvent.ACTION_DOWN)){navigate(query.getText().toString());return true;}return false;});
+        searchRow.addView(query,new LinearLayout.LayoutParams(0,Ui.dp(this,48),1));
+        TextView go=Ui.button(this,"GO",Color.WHITE,palette().highlight,()->navigate(query.getText().toString()));
+        go.setMinWidth(Ui.dp(this,54));LinearLayout.LayoutParams goLp=new LinearLayout.LayoutParams(-2,Ui.dp(this,46));goLp.leftMargin=Ui.dp(this,7);searchRow.addView(go,goLp);
+        LinearLayout.LayoutParams searchLp=new LinearLayout.LayoutParams(-1,-2);searchLp.topMargin=Ui.dp(this,15);hero.addView(searchRow,searchLp);
+        LinearLayout stats=Ui.row(this);stats.setPadding(0,Ui.dp(this,14),0,0);
+        String[] labels={"TABS  "+tabs.size()+"/20","THEME  "+theme.title,"TURBO  "+(turbo()?"ON":"OFF")};
+        for(int i=0;i<labels.length;i++){TextView chip=Ui.text(this,labels[i],10,Color.WHITE,true);chip.setGravity(Gravity.CENTER);chip.setBackground(Ui.bg(0x33485c72,10,this));Ui.pad(chip,this,7);LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(0,-2,1);cp.setMargins(0,0,Ui.dp(this,5),0);stats.addView(chip,cp);}
+        hero.addView(stats);
+        LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(-1,-2);hp.bottomMargin=Ui.dp(this,10);panel.addView(hero,hp);
+        LinearLayout quick=Ui.row(this);quick.setGravity(Gravity.CENTER_VERTICAL);
+        TextView downloads=Ui.button(this,"↓  Downloads",fg(),card(),this::downloads);
+        TextView video=Ui.button(this,"▶  Video",fg(),card(),this::videoPicker);
+        TextView menu=Ui.button(this,"☷  Control center",fg(),card(),()->showControlCenter(false));
+        for(TextView b:new TextView[]{downloads,video,menu}){LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(0,-2,1);bp.setMargins(0,0,Ui.dp(this,5),0);quick.addView(b,bp);}
+        LinearLayout.LayoutParams qp=new LinearLayout.LayoutParams(-1,-2);qp.bottomMargin=Ui.dp(this,6);panel.addView(quick,qp);
+    }
+'''
+source = source.replace(home_method_anchor, home_method+home_method_anchor, 1)
+cc_anchor = '        section(body,"ACTIVE MODES");actionRow(body,d,"✦","SR Turbo Pro dashboard"'
+if source.count(cc_anchor) != 1:
+    raise SystemExit("Control-center insertion point mismatch.")
+banner = r'''        LinearLayout workspace=Ui.column(this);Ui.pad(workspace,this,13);
+        workspace.setBackground(Ui.gradient(this,palette().toolbar,palette().nav,17));
+        workspace.addView(Ui.text(this,"PRO WORKSPACE",10,palette().highlight,true));
+        workspace.addView(Ui.text(this,"Everything in one place",18,Color.WHITE,true));
+        workspace.addView(Ui.text(this,tabs.size()+" tabs  •  "+connections+" connections  •  "+theme.title,11,0xffd4e2ee,false));
+        LinearLayout.LayoutParams workspaceLp=new LinearLayout.LayoutParams(-1,-2);workspaceLp.bottomMargin=Ui.dp(this,5);body.addView(workspace,workspaceLp);
+'''
+source = source.replace(cc_anchor, banner+cc_anchor, 1)
+activity.write_text(source, encoding="utf-8")
+
+ds = downloads.read_text(encoding="utf-8")
+field_anchor = 'LinearLayout list;TextView summary,speedLabel,transferLabel;boolean dark;'
+if ds.count(field_anchor) != 1:
+    raise SystemExit("Downloads fields anchor mismatch.")
+ds = ds.replace(field_anchor, 'LinearLayout list,filterBar;TextView summary,speedLabel,transferLabel;String filter="ALL";boolean dark;', 1)
+ui_anchor = 'root.addView(summary);root.addView(Ui.button(this,"▶  Video downloads"'
+if ds.count(ui_anchor) != 1:
+    raise SystemExit("Downloads UI anchor mismatch.")
+ds = ds.replace(ui_anchor, 'root.addView(summary);filterBar=Ui.row(this);filterBar.setPadding(Ui.dp(this,12),Ui.dp(this,5),Ui.dp(this,12),Ui.dp(this,8));root.addView(filterBar);renderFilters();root.addView(Ui.button(this,"▶  Video downloads"', 1)
+refresh_anchor = 'void refresh(){List<JSONObject> items=DownloadService.snapshot(this);long aggregate=0;int running=0,queued=0;'
+if ds.count(refresh_anchor) != 1:
+    raise SystemExit("Downloads refresh anchor mismatch.")
+ds = ds.replace(refresh_anchor, 'void refresh(){List<JSONObject> all=DownloadService.snapshot(this);long aggregate=0;int running=0,queued=0;', 1)
+summary_anchor = 'speedLabel.setText(size(aggregate)+"/s");transferLabel.setText(running+" active  ·  "+queued+" queued");summary.setText(items.size()+" transfers  •  Download/SR Turbo");StringBuilder order=new StringBuilder();for(JSONObject j:items)'
+if ds.count(summary_anchor) != 1:
+    raise SystemExit("Downloads summary anchor mismatch.")
+ds = ds.replace(summary_anchor, 'speedLabel.setText(size(aggregate)+"/s");transferLabel.setText(running+" active  ·  "+queued+" queued");summary.setText(all.size()+" transfers  •  Download/SR Turbo");List<JSONObject> items=new ArrayList<>();for(JSONObject item:all){String state=item.optString("state");if(filter.equals("ALL")||(filter.equals("ACTIVE")&&(state.equals("Running")||state.equals("Queued")||state.equals("Saving")||state.equals("Paused")))||(filter.equals("COMPLETED")&&state.equals("Completed"))||(filter.equals("FAILED")&&(state.equals("Failed")||state.equals("Cancelled"))))items.add(item);}StringBuilder order=new StringBuilder();for(JSONObject j:items)', 1)
+empty_anchor = 'if(items.isEmpty()){TextView empty=Ui.text(this,"No downloads yet.\\nOpen a website or paste a direct download link.",16,muted(),false);'
+if ds.count(empty_anchor) != 1:
+    raise SystemExit("Downloads empty-state anchor mismatch.")
+ds = ds.replace(empty_anchor, 'if(items.isEmpty()){String emptyText=filter.equals("ALL")?"No downloads yet.\\nOpen a website or paste a direct download link.":"No "+filter.toLowerCase(Locale.ROOT)+" transfers.";TextView empty=Ui.text(this,emptyText,16,muted(),false);', 1)
+filter_anchor = '    final Runnable update=new Runnable(){'
+if ds.count(filter_anchor) != 1:
+    raise SystemExit("Downloads filter method anchor mismatch.")
+filters = r'''    void renderFilters(){
+        filterBar.removeAllViews();
+        String[] labels={"ALL","ACTIVE","COMPLETED","FAILED"};
+        for(String value:labels){
+            boolean selected=filter.equals(value);
+            TextView chip=Ui.button(this,value,selected?Color.WHITE:fg(),selected?theme.nav:card(),()->{filter=value;last="";renderFilters();refresh();});
+            chip.setTextSize(10);chip.setPadding(Ui.dp(this,10),Ui.dp(this,9),Ui.dp(this,10),Ui.dp(this,9));
+            LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-2,1);lp.setMargins(0,0,Ui.dp(this,5),0);filterBar.addView(chip,lp);
+        }
+    }
+'''
+ds = ds.replace(filter_anchor, filters+filter_anchor, 1)
+downloads.write_text(ds, encoding="utf-8")
+
+build = gradle.read_text(encoding="utf-8")
+if "versionCode 33" not in build or "versionName '3.7'" not in build:
+    raise SystemExit("Unexpected patched app version.")
+gradle.write_text(build.replace("versionCode 33","versionCode 34",1).replace("versionName '3.7'","versionName '3.8'",1),encoding="utf-8")
+print("Applied SR Turbo Browser Pro 3.8 visual refresh.")
+
