@@ -75,7 +75,7 @@ activity.write_text(source, encoding="utf-8")
 build = gradle.read_text(encoding="utf-8")
 if "versionCode 32" not in build or "versionName '3.6'" not in build:
     raise SystemExit("Unexpected app version; refusing to overwrite version metadata.")
-build = build.replace("versionCode 32", "versionCode 33", 1).replace("versionName '3.6'", "versionName '3.7'", 1)
+build = build.replace("versionCode 32", "versionCode 35", 1).replace("versionName '3.6'", "versionName '3.9'", 1)
 gradle.write_text(build, encoding="utf-8")
 
 # Pro 3.8 visual refresh: home screen, Control Center and Downloads Center.
@@ -86,7 +86,7 @@ source = activity.read_text(encoding="utf-8")
 home_anchor = '        }else renderQuickAccess(panel);\n'
 if source.count(home_anchor) != 1:
     raise SystemExit("Home screen insertion point mismatch.")
-source = source.replace(home_anchor, '        }else {renderProHome(panel);renderQuickAccess(panel);}\n', 1)
+source = source.replace(home_anchor, '        }else renderQuickAccess(panel);\n', 1)
 home_method_anchor = '    void defaultQuickLinks(){'
 if source.count(home_method_anchor) != 1:
     raise SystemExit("Quick-access method insertion point mismatch.")
@@ -125,7 +125,7 @@ home_method = r'''    void renderProHome(LinearLayout panel){
         LinearLayout.LayoutParams qp=new LinearLayout.LayoutParams(-1,-2);qp.bottomMargin=Ui.dp(this,6);panel.addView(quick,qp);
     }
 '''
-source = source.replace(home_method_anchor, home_method+home_method_anchor, 1)
+# Hero card intentionally omitted; keep compact Quick Access home.
 cc_anchor = '        section(body,"ACTIVE MODES");actionRow(body,d,"✦","SR Turbo Pro dashboard"'
 if source.count(cc_anchor) != 1:
     raise SystemExit("Control-center insertion point mismatch.")
@@ -183,5 +183,27 @@ build = gradle.read_text(encoding="utf-8")
 if "versionCode 33" not in build or "versionName '3.7'" not in build:
     raise SystemExit("Unexpected patched app version.")
 gradle.write_text(build.replace("versionCode 33","versionCode 34",1).replace("versionName '3.7'","versionName '3.8'",1),encoding="utf-8")
-print("Applied SR Turbo Browser Pro 3.8 visual refresh.")
+# Expand the offline theme gallery from 18 to 30 color palettes.
+theme_file = root / "app/src/main/java/com/srcreation/browser/BrowserTheme.java"
+theme_source = theme_file.read_text(encoding="utf-8")
+theme_anchor = '    MOONLAKE("Moonlit Lake", "Moonlight · quiet woodland", "moonlake", true, 0xff171e3c,0xff293552,0xff1e2945,0xff2c3b58,0xffeef3ff,0xffc0cde9,0xffbcd9ff,0xffbcd9ff,0xff4d6080,0xff3d5478);'
+if theme_source.count(theme_anchor) != 1:
+    raise SystemExit("BrowserTheme enum anchor mismatch; refusing to change theme list.")
+extra_themes = """    MOONLAKE("Moonlit Lake", "Moonlight · quiet woodland", "moonlake", true, 0xff171e3c,0xff293552,0xff1e2945,0xff2c3b58,0xffeef3ff,0xffc0cde9,0xffbcd9ff,0xffbcd9ff,0xff4d6080,0xff3d5478),
+    GRAPHITE("Graphite Pro", "Charcoal · electric silver", null, true, 0xff171b22,0xff292f39,0xff202630,0xff2c333e,0xfff2f5fa,0xffb6c0ce,0xff8ba7c7,0xffc6dcf5,0xff414c5c,0xff35485f),
+    COBALT("Cobalt Blue", "Deep blue · vivid cyan", null, true, 0xff102a50,0xff1a3d6b,0xff17365d,0xff204574,0xfff1f7ff,0xffbfd4f2,0xff4fa9ff,0xff8bd4ff,0xff3a5c86,0xff234d78),
+    CRIMSON("Crimson Night", "Dark cherry · ruby glow", null, true, 0xff351b2b,0xff51283b,0xff422236,0xff583047,0xfffff2f6,0xffe0b9c8,0xffff6b91,0xffffa5bc,0xff75475c,0xff68374f),
+    COPPER("Copper Luxe", "Warm bronze · premium dark", null, true, 0xff38291f,0xff59402e,0xff483528,0xff5b4434,0xfffff6ed,0xffdfc7b2,0xffd58b55,0xffffc18d,0xff795c49,0xff6b4a35),
+    MIDNIGHT("Midnight Violet", "Deep indigo · violet light", null, true, 0xff211d43,0xff332d5e,0xff29254f,0xff393365,0xfff5f1ff,0xffc9c2eb,0xffa48bff,0xffc7b8ff,0xff5a5485,0xff494174),
+    ORCHID("Orchid Bloom", "Soft lilac · plum accents", null, false, 0xff50365e,0xff684878,0xfffaf5ff,0xffffffff,0xff352443,0xff6d5a7d,0xff8653a8,0xffe6c5ff,0xffe3d4ed,0xfff0e3f8),
+    GLACIER("Glacier Ice", "Frost white · arctic blue", null, false, 0xff24516c,0xff326b88,0xfff1faff,0xffffffff,0xff17394c,0xff4d7184,0xff187a9e,0xffb9edff,0xffd2e7ef,0xffdff4fb),
+    SANDSTONE("Sandstone", "Natural beige · earthy olive", null, false, 0xff5b4934,0xff786144,0xfffff8ec,0xfffffdf6,0xff3f3426,0xff75664f,0xff8b6b37,0xffffdf9c,0xffe8dcc5,0xfff5ead2),
+    CYBERPUNK("Cyber Pulse", "Neon teal · futuristic dark", null, true, 0xff101f2b,0xff183342,0xff152b38,0xff1d3948,0xffedffff,0xffafd2d9,0xff00d6c9,0xff7dfff2,0xff3c6670,0xff245b5a),
+    SLATE("Slate Minimal", "Cool grey · restrained blue", null, false, 0xff344253,0xff48596d,0xfff2f5f8,0xffffffff,0xff253343,0xff586879,0xff3d668f,0xffc4dcf5,0xffd7e0e8,0xffe5edf4),
+    CORAL("Coral Breeze", "Warm white · tropical coral", null, false, 0xff713d3b,0xff92504a,0xfffff6f1,0xffffffff,0xff4c302d,0xff80635e,0xffc65e50,0xffffc2ae,0xffeedbd4,0xfff8e6df),
+    OLIVE("Olive Grove", "Soft cream · botanical olive", null, false, 0xff465035,0xff5d6b43,0xfff7f8ed,0xffffffff,0xff333c25,0xff657052,0xff657d32,0xffd9e8a8,0xffe0e5d0,0xffedf1d9);"""
+theme_source = theme_source.replace(theme_anchor, extra_themes, 1)
+theme_file.write_text(theme_source, encoding="utf-8")
+
+print("Applied SR Turbo Browser Pro 3.9 home and theme update.")
 
