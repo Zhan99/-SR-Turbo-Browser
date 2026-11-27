@@ -60,3 +60,7 @@ The repository's test suite exercises download-engine behavior and selected brow
 ## License and third-party notices
 
 See `COPYING-GPL-3.0` and `THIRD_PARTY_NOTICES` in the supplied source archive. Review all bundled dependencies and their licenses before distributing modified builds.
+
+
+## CI note
+The Android SDK environment is exported as separate `ANDROID_HOME` and `ANDROID_SDK_ROOT` lines for the GitHub Actions runner.
