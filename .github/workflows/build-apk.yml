@@ -36,6 +36,13 @@ jobs:
           test -f "$root/app/build.gradle"
           test -f "$root/app/src/main/AndroidManifest.xml"
           echo "root=$root" >> "$GITHUB_OUTPUT"
+      - name: Upload extracted Android source for Pro upgrade review
+        uses: actions/upload-artifact@v4
+        with:
+          name: SR-Turbo-Browser-Source-Snapshot
+          path: ${{ steps.project.outputs.root }}/
+          if-no-files-found: error
+          retention-days: 7
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
