@@ -37,7 +37,7 @@ edit("app/src/main/java/com/srcreation/browser/YouTubeDownloadsActivity.java",[
 ('permission.setEnabled(!busy);for(CheckBox c:choices)','permission.setEnabled(!busy);audioOnly.setEnabled(!busy);for(CheckBox c:choices)')
 ])
 edit("app/src/main/java/com/srcreation/browser/BrowserActivity.java",[
-('if(!http(url)){toast("Only HTTP/HTTPS file downloads are supported");return;}\n         String guess=URLUtil.guessFileName(url,disposition,mime);',
+('if(!http(url)){toast("Only HTTP/HTTPS file downloads are supported");return;}',
 'url=url==null?"":url.trim();\n         if(!http(url)){toast("This link is not a direct HTTP/HTTPS file URL. Open the file page and use its Download link, or copy the direct file address.");return;}\n         // GitHub /blob/ pages return HTML; switch to the raw file endpoint before downloading.\n         try{android.net.Uri parsed=android.net.Uri.parse(url);if("github.com".equalsIgnoreCase(parsed.getHost())&&parsed.getPath()!=null&&parsed.getPath().contains("/blob/"))url=parsed.buildUpon().encodedPath(parsed.getPath().replaceFirst("/blob/","/raw/")).build().toString();}catch(Exception ignored){}\n         String guess=URLUtil.guessFileName(url,disposition,mime);'),
 ('String type=mime==null?(inferred==null?"application/octet-stream":inferred):mime.split(";",2)[0];',
 'String supplied=mime==null?"":mime.split(";",2)[0].trim();\n         String type=(supplied.isEmpty()||supplied.equalsIgnoreCase("text/html")||supplied.equalsIgnoreCase("application/octet-stream"))?(inferred==null?"application/octet-stream":inferred):supplied;'),
