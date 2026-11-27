@@ -214,6 +214,8 @@ for old, new in {
     "0xffc65e50":"0xffd97868",
 }.items():
     theme_source = theme_source.replace(old, new, 1)
+theme_source = theme_source.replace("0xffe6a36f", "0xffefb17e", 1)
+theme_source = theme_source.replace("0xffd97868", "0xffa43f35", 1)
 theme_file.write_text(theme_source, encoding="utf-8")
 
 # Update the bundled regression test to assert the expanded palette count.
@@ -223,7 +225,9 @@ if not theme_test.is_file():
 test_source = theme_test.read_text(encoding="utf-8")
 if test_source.count("BrowserTheme.values().length==18") != 1:
     raise SystemExit("Theme test count assertion mismatch.")
-theme_test.write_text(test_source.replace("BrowserTheme.values().length==18", "BrowserTheme.values().length==30", 1), encoding="utf-8")
+test_source = test_source.replace("BrowserTheme.values().length==18", "BrowserTheme.values().length==30", 1)
+test_source = test_source.replace("18 themes, 10 scenes", "30 themes, 10 scenes")
+theme_test.write_text(test_source, encoding="utf-8")
 
 print("Applied SR Turbo Browser Pro 3.9 home and theme update.")
 
