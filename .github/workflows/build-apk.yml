@@ -90,6 +90,7 @@ jobs:
           set -euo pipefail
           python3 app/src/main/assets/sr-yt-dlp --ignore-config --concurrent-fragments 32 --buffer-size 256K --abort-on-unavailable-fragments --http-chunk-size 8M --format-sort 'lang,quality,res,fps,hdr:12,vcodec,channels,acodec,proto:http_dash_segments' --extractor-args 'youtube:formats=dashy' --version
           python3 app/src/main/assets/sr-yt-dlp --ignore-config --concurrent-fragments 8 --buffer-size 256K --abort-on-unavailable-fragments --version
+          python3 app/src/main/assets/sr-yt-dlp --ignore-config --format bestaudio/best --extract-audio --audio-format mp3 --audio-quality 0 --version
       - name: Compile all Android Java sources
         working-directory: ${{ steps.project.outputs.root }}
         shell: bash
