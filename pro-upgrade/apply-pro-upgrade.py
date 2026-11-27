@@ -79,6 +79,9 @@ build = build.replace("versionCode 32", "versionCode 33", 1).replace("versionNam
 gradle.write_text(build, encoding="utf-8")
 
 # Pro 3.8 visual refresh: home screen, Control Center and Downloads Center.
+downloads = root / "app/src/main/java/com/srcreation/browser/DownloadsActivity.java"
+if not downloads.is_file():
+    raise SystemExit("DownloadsActivity.java not found.")
 source = activity.read_text(encoding="utf-8")
 home_anchor = '        }else renderQuickAccess(panel);\n'
 if source.count(home_anchor) != 1:
