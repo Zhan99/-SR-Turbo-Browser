@@ -75,7 +75,7 @@ activity.write_text(source, encoding="utf-8")
 build = gradle.read_text(encoding="utf-8")
 if "versionCode 32" not in build or "versionName '3.6'" not in build:
     raise SystemExit("Unexpected app version; refusing to overwrite version metadata.")
-build = build.replace("versionCode 32", "versionCode 35", 1).replace("versionName '3.6'", "versionName '3.9'", 1)
+build = build.replace("versionCode 32", "versionCode 33", 1).replace("versionName '3.6'", "versionName '3.7'", 1)
 gradle.write_text(build, encoding="utf-8")
 
 # Pro 3.8 visual refresh: home screen, Control Center and Downloads Center.
@@ -183,6 +183,8 @@ build = gradle.read_text(encoding="utf-8")
 if "versionCode 33" not in build or "versionName '3.7'" not in build:
     raise SystemExit("Unexpected patched app version.")
 gradle.write_text(build.replace("versionCode 33","versionCode 34",1).replace("versionName '3.7'","versionName '3.8'",1),encoding="utf-8")
+build = gradle.read_text(encoding="utf-8")
+gradle.write_text(build.replace("versionCode 34","versionCode 35",1).replace("versionName '3.8'","versionName '3.9'",1),encoding="utf-8")
 # Expand the offline theme gallery from 18 to 30 color palettes.
 theme_file = root / "app/src/main/java/com/srcreation/browser/BrowserTheme.java"
 theme_source = theme_file.read_text(encoding="utf-8")
