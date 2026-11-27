@@ -43,10 +43,7 @@ edit("app/src/main/java/com/srcreation/browser/BrowserActivity.java",[
 'String supplied=mime==null?"":mime.split(";",2)[0].trim();\n         String type=(supplied.isEmpty()||supplied.equalsIgnoreCase("text/html")||supplied.equalsIgnoreCase("application/octet-stream"))?(inferred==null?"application/octet-stream":inferred):supplied;'),
 ('static boolean http(String s){return s!=null&&(s.startsWith("https://")||s.startsWith("http://"));}',
 'static boolean http(String s){if(s==null)return false;String v=s.trim().toLowerCase(Locale.ROOT);return v.startsWith("https://")||v.startsWith("http://");}'),
-('    void quickVideoDownload(String link){\n        if(link==null){startActivity(new Intent(this,YouTubeDownloadsActivity.class));return;}\n        if(YouTubeDownloadService.busy){toast("A video download is already running");return;}',
-'    void quickVideoDownload(String link){\n        if(link==null){startActivity(new Intent(this,YouTubeDownloadsActivity.class));return;}\n        if(YouTubeDownloadService.busy){toast("A video/audio download is already running");return;}'),
-('startActivity(new Intent(this,YouTubeDownloadsActivity.class));\n    }\n    void backgroundDownloadSettings()',
-'startActivity(new Intent(this,YouTubeDownloadsActivity.class).putExtra("url",link));\n    }\n    void backgroundDownloadSettings()')
+
 ])
 print("Applied audio-only MP3 mode, result MIME handling, GitHub raw-file routing, and generic MIME inference.")
 PY
