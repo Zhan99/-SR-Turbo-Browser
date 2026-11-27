@@ -2,7 +2,7 @@ name: Build SR Turbo Browser APK
 on:
   workflow_dispatch:
   push:
-    branches: ['main', 'master']
+    branches: ['main', 'master', 'feature/audio-download-universal-files']
 permissions:
   contents: read
 jobs:
